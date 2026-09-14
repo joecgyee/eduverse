@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - {{ course.name }} Students{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h4 class="mb-1">Students enrolled in {{ course.name }}</h4>
+  <p class="text-muted mb-4">{{ enrollments|length }} total enrollment{{ enrollments|length|pluralize }}</p>
+
+  {% if enrollments %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Enrolled</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enrollment in enrollments %}
+            <tr>
+              <td>{{ enrollment.student.get_full_name }}</td>
+              <td>{{ enrollment.student.email }}</td>
+              <td>
+                <span class="badge bg-{% if enrollment.status == 'active' %}success{% else %}danger{% endif %}">
+                  {{ enrollment.get_status_display }}
+                </span>
+              </td>
+              <td>{{ enrollment.enrolled_at|date:"M d, Y" }}</td>
+              <td>
+                {% if enrollment.status == 'active' %}
+                  <form method="post" action="{% url 'courses:block_student' course.pk enrollment.pk %}"
+                        onsubmit="return confirm('Block {{ enrollment.student.get_full_name }} from this course?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                      <i class="fas fa-user-slash me-1"></i>Block
+                    </button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted">No students enrolled yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

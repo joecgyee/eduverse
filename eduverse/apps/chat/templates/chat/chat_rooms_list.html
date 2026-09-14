@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Chat Rooms{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div class="course-section-title mb-0">
+      <span class="course-section-dot course-section-dot--navy"></span>
+      <h3 class="course-page-title mb-0 animate__animated animate__slideInRight">Chat Rooms</h3>
+    </div>
+    {% if request.user.is_student %}
+      <a href="{% url 'chat:start' %}" class="btn course-btn-solid btn-sm">
+        <i class="fas fa-plus me-1"></i>Start a Chat
+      </a>
+    {% endif %}
+  </div>
+
+  {% if rooms %}
+    <div class="chat-room-list">
+      {% for room in rooms %}
+        <a href="{% url 'chat:room_detail' room.pk %}" class="chat-room-item"
+           title="{{ room.course.code }} - {{ room.course.name }}">
+          <span class="dash-chat-icon flex-shrink-0"><i class="bi bi-chat-dots-fill"></i></span>
+          <span class="chat-room-name">{{ room.name|default:room.course.name }}</span>
+          <span class="chat-code-badge">{{ room.course.code }}</span>
+          <i class="bi bi-chevron-right dash-chevron"></i>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="course-empty">
+      <i class="bi bi-chat-square-dots course-empty-icon"></i>
+      <p class="mb-0">No chat rooms yet.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

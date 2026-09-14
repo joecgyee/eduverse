@@ -1,0 +1,111 @@
+/* ---------- Profile ---------- */
+.profile-card {
+    position: relative;
+    background-color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(4, 21, 98, 0.08);
+    overflow: hidden;
+}
+
+.profile-banner {
+    height: 110px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+}
+
+.profile-edit-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: rgba(255, 255, 255, 0.92);
+}
+
+.profile-avatar-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: -52px;
+}
+
+.profile-avatar {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(4, 21, 98, 0.15);
+}
+
+.profile-avatar--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(4, 21, 98, 0.08);
+    color: var(--navy);
+    font-size: 1.8rem;
+}
+
+.profile-body {
+    padding: 0.5rem 2rem 2rem;
+}
+
+.profile-name {
+    font-family: 'Sora', system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--navy);
+}
+
+.profile-role-pill {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+    letter-spacing: 0.01em;
+}
+
+.profile-role-pill--student {
+    background-color: rgba(90, 122, 205, 0.15);
+    color: var(--sky);
+}
+
+.profile-role-pill--teacher {
+    background-color: rgba(254, 176, 93, 0.22);
+    color: #b3762c;
+}
+
+.profile-info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(4, 21, 98, 0.06);
+}
+
+.profile-info-row:last-child {
+    border-bottom: none;
+}
+
+.profile-info-row--bio {
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.profile-info-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.profile-info-value {
+    font-weight: 500;
+    text-align: right;
+}
+
+.profile-info-row--bio .profile-info-value {
+    text-align: left;
+}
+
+@media (max-width: 575.98px) {
+    .profile-body {
+        padding: 0.5rem 1.25rem 1.5rem;
+    }
+}

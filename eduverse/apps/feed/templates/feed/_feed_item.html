@@ -1,0 +1,58 @@
+{% load static %}
+
+<div class="card shadow-sm border-0 mb-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <div class="d-flex align-items-center">
+        <a href="{% url 'users:detail_by_id' feed.author.pk %}">
+          {% if feed.author.photo %}
+            <img src="{{ feed.author.photo.url }}" alt="" class="rounded-circle me-2"
+                 style="width:40px; height:40px; object-fit:cover;">
+          {% else %}
+            <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center me-2"
+                 style="width:40px; height:40px;">
+              <i class="fas fa-user text-secondary"></i>
+            </div>
+          {% endif %}
+        </a>
+        <div>
+          <a href="{% url 'users:detail_by_id' feed.author.pk %}" class="fw-bold text-dark text-decoration-none">
+            {{ feed.author.get_full_name }}
+          </a>
+          <div class="text-muted small">{{ feed.created_at|date:"M d, Y, g:i A" }}</div>
+        </div>
+      </div>
+
+      {% if feed.author_id == request.user.id %}
+        <form method="post" action="{% url 'feed:delete' feed.pk %}"
+              onsubmit="return confirm('Delete this post?');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    <p class="mb-3">{{ feed.content }}</p>
+
+    {% if feed.comments.all %}
+      <div class="border-top pt-2 mb-2">
+        {% for comment in feed.comments.all %}
+          <div class="d-flex mb-2">
+            <a href="{% url 'users:detail_by_id' comment.author.pk %}" class="fw-bold small text-dark text-decoration-none me-2">
+              {{ comment.author.get_full_name }}
+            </a>
+            <span class="small text-secondary">{{ comment.content }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'feed:comment_create' feed.pk %}" class="d-flex gap-2 border-top pt-2">
+      {% csrf_token %}
+      {{ comment_form.content }}
+      <button type="submit" class="btn btn-navy btn-sm">Post</button>
+    </form>
+  </div>
+</div>

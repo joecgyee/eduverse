@@ -1,0 +1,228 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Chat - {{ room.name|default:room.course.name }}{% endblock %}
+
+{% block content %}
+
+<div class="chat-page-bar">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="chat-page-title mb-0">{{ room.name|default:room.course.name }}</h5>
+      <p class="chat-page-meta mb-0">{{ room.course.code }} - {{ room.course.name }}</p>
+    </div>
+    <button type="button" class="btn course-btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#membersModal">
+      <i class="fas fa-users me-1"></i>Members ({{ members.count }})
+    </button>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <div id="chat-log" class="chat-log">
+    {% for msg in recent_messages %}
+      <div class="chat-row {% if msg.sender_id == request.user.id %}chat-row--own{% else %}chat-row--other{% endif %}">
+        {% if msg.sender_id != request.user.id %}
+          <span class="dash-avatar accent-{{ msg.sender_id|divisibleby:3|yesno:'a,b,c' }} chat-avatar">
+            {{ msg.sender.get_full_name|slice:":1"|upper }}
+          </span>
+        {% endif %}
+        <div class="chat-bubble-wrap">
+          {% if msg.sender_id != request.user.id %}
+            <span class="chat-sender-name">{% if msg.sender.is_teacher %}{{ msg.sender.teacher_profile.title }} {% endif %}{{ msg.sender.get_full_name }}</span>
+          {% endif %}
+          {% if msg.content %}<div class="chat-bubble">{{ msg.content }}</div>{% endif %}
+          {% if msg.attachment %}
+            <a href="{{ msg.attachment.url }}" target="_blank" class="chat-attachment-chip">
+              <i class="fas fa-paperclip me-1"></i>{{ msg.attachment.name|slice:"-25:" }}
+            </a>
+          {% endif %}
+          <span class="chat-timestamp">{{ msg.sent_at|date:"M d, g:i A" }}</span>
+        </div>
+      </div>
+    {% empty %}
+      <div class="course-empty">
+        <i class="bi bi-chat-dots course-empty-icon"></i>
+        <p class="mb-0">No messages yet. Say hello!</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="chat-input-bar mt-3">
+    <button id="chat-attachment-btn" class="chat-attach-btn" aria-label="Attach file" type="button">
+      <i class="fas fa-paperclip"></i>
+    </button>
+    <input id="chat-attachment-input" type="file" class="d-none">
+    <input id="chat-input" type="text" class="chat-input" placeholder="Type a message...">
+    <button id="chat-send" class="chat-send-btn" aria-label="Send message">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+  <div id="attachment-status" class="chat-attachment-status"></div>
+
+</div>
+
+<script>
+  const roomId = "{{ room.pk }}";
+  const currentUserId = "{{ request.user.id }}";
+  const wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+  const chatSocket = new WebSocket(wsProtocol + window.location.host + "/ws/chat/" + roomId + "/");
+
+  const chatLog = document.getElementById("chat-log");
+  const chatInput = document.getElementById("chat-input");
+  const chatSend = document.getElementById("chat-send");
+
+  const accentClasses = ["accent-a", "accent-b", "accent-c"];
+
+  function accentFor(id) {
+    const n = Number(id) || 0;
+    return accentClasses[n % 3];
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function appendMessage(data) {
+    const isOwn = String(data.sender_id) === String(currentUserId);
+    const row = document.createElement("div");
+    row.className = "chat-row " + (isOwn ? "chat-row--own" : "chat-row--other");
+
+    const initial = (data.sender_name || "?").trim().charAt(0).toUpperCase();
+
+    const contentHtml = data.content
+      ? `<div class="chat-bubble">${escapeHtml(data.content)}</div>`
+      : "";
+
+    const attachmentHtml = data.attachment_url
+      ? `<a href="${data.attachment_url}" target="_blank" class="chat-attachment-chip">
+          <i class="fas fa-paperclip me-1"></i>${escapeHtml(data.attachment_name)}
+        </a>`
+      : "";
+
+    row.innerHTML = `
+      ${!isOwn ? `<span class="dash-avatar ${accentFor(data.sender_id)} chat-avatar">${initial}</span>` : ""}
+      <div class="chat-bubble-wrap">
+        ${!isOwn ? `<span class="chat-sender-name">${escapeHtml(data.sender_name)}</span>` : ""}
+        ${contentHtml}
+        ${attachmentHtml}
+        <span class="chat-timestamp">${escapeHtml(data.sent_at)}</span>
+      </div>
+    `;
+
+    chatLog.appendChild(row);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  chatSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    appendMessage(data);
+  };
+
+  chatSocket.onclose = function () {
+    console.error("Chat socket closed unexpectedly");
+  };
+
+  function sendMessage() {
+    const content = chatInput.value.trim();
+    if (!content) return;
+    chatSocket.send(JSON.stringify({ content: content }));
+    chatInput.value = "";
+  }
+
+  chatSend.addEventListener("click", sendMessage);
+  chatInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    chatLog.scrollTop = chatLog.scrollHeight;
+  });
+
+  // Chat Attachments
+  const attachmentBtn = document.getElementById("chat-attachment-btn");
+  const attachmentInput = document.getElementById("chat-attachment-input");
+  const attachmentStatus = document.getElementById("attachment-status");
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+  }
+
+  attachmentBtn.addEventListener("click", function () {
+    attachmentInput.click();
+  });
+
+  attachmentInput.addEventListener("change", function () {
+    const file = attachmentInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("attachment", file);
+
+    attachmentStatus.textContent = `Uploading ${file.name}...`;
+    attachmentBtn.disabled = true;
+
+    fetch(`/chat/${roomId}/upload/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.errors) {
+          attachmentStatus.textContent = "Upload failed — please try a smaller file.";
+        } else {
+          attachmentStatus.textContent = "";
+        }
+      })
+      .catch(() => {
+        attachmentStatus.textContent = "Upload failed. Please try again.";
+      })
+      .finally(() => {
+        attachmentInput.value = "";
+        attachmentBtn.disabled = false;
+      });
+  });
+</script>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Members Modal -->
+<div class="modal fade" id="membersModal" tabindex="-1" aria-labelledby="membersModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content chat-modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="membersModalLabel">Room Members</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for member in members %}
+            <li class="list-group-item chat-member-item">
+              {% if member.user.photo %}
+                <img src="{{ member.user.photo.url }}" alt="" class="chat-member-photo">
+              {% else %}
+                <span class="dash-avatar accent-{{ member.user_id|divisibleby:3|yesno:'a,b,c' }} chat-member-avatar">
+                  {{ member.user.get_full_name|slice:":1"|upper }}
+                </span>
+              {% endif %}
+              <a href="{% url 'users:detail_by_id' member.user.pk %}" class="chat-member-name">
+                {% if member.user.is_teacher %}{{ member.user.teacher_profile.title }} {% endif %}{{ member.user.get_full_name }}
+              </a>
+              {% if member.user_id == room.created_by_id %}
+                <span class="chat-creator-pill ms-auto">Creator</span>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">No members yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

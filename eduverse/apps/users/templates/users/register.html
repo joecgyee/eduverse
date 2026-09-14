@@ -1,0 +1,198 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Register{% endblock %}
+
+{% block content %}
+<div class="min-vh-center">
+  <div class="container d-flex align-items-center justify-content-center py-5">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-navy text-white py-3 text-center">
+          <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create your Eduverse Account</h4>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger shadow-sm">
+                {% for error in form.non_field_errors %}
+                  <div class="small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {# ---- Role selection (dropdown) ---- #}
+            <div class="mb-3">
+              <label for="id_role" class="form-label fw-bold">I am a...<span class="text-danger">*</span></label>
+              {{ form.role }}
+              {% if form.role.errors %}
+                <div class="invalid-feedback d-block">{{ form.role.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="id_first_name" class="form-label fw-bold">First Name<span class="text-danger">*</span></label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                  <div class="invalid-feedback d-block">{{ form.first_name.errors|striptags }}</div>
+                {% endif %}
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="id_last_name" class="form-label fw-bold">Last Name<span class="text-danger">*</span></label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                  <div class="invalid-feedback d-block">{{ form.last_name.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_email" class="form-label fw-bold">Email Address<span class="text-danger">*</span></label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="invalid-feedback d-block">{{ form.email.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            {# ---- Profile Photo with preview + clear ---- #}
+            <div class="mb-3">
+              <label for="id_photo" class="form-label fw-bold">Profile Photo</label>
+              {{ form.photo }}
+              <div class="form-text">Optional. Shown on your profile.</div>
+              {% if form.photo.errors %}
+                <div class="invalid-feedback d-block">{{ form.photo.errors|striptags }}</div>
+              {% endif %}
+
+              <!-- Hidden by default using d-none -->
+              <div class="mt-2 align-items-center gap-3 d-none" id="photo-preview-wrapper">
+                <img id="photo-preview" src="#" alt="Photo preview"
+                     class="rounded"
+                     style="width:80px; height:80px; object-fit:cover; border:1px solid #dee2e6;">
+                <button type="button" id="clear-photo-btn" class="btn btn-outline-danger btn-sm">
+                  <i class="fas fa-times me-1"></i>Remove photo
+                </button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="id_password1" class="form-label fw-bold">Password<span class="text-danger">*</span></label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                  <div class="invalid-feedback d-block">{{ form.password1.errors|striptags }}</div>
+                {% endif %}
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="id_password2" class="form-label fw-bold">Confirm Password<span class="text-danger">*</span></label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                  <div class="invalid-feedback d-block">{{ form.password2.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            {# ---- Student-only fields ---- #}
+            <div id="student-fields" class="border rounded p-3 mb-3 d-none">
+              <!-- Changed text-primary to text-navy -->
+              <h6 class="fw-bold text-navy mb-3"><i class="fas fa-graduation-cap me-1"></i>Student Details</h6>
+              <div class="mb-3">
+                <label for="id_date_of_birth" class="form-label">Date of Birth<span class="text-danger">*</span></label>
+                {{ form.date_of_birth }}
+                {% if form.date_of_birth.errors %}
+                  <div class="invalid-feedback d-block">{{ form.date_of_birth.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            {# ---- Teacher-only fields ---- #}
+            <div id="teacher-fields" class="border rounded p-3 mb-3 d-none">
+              <!-- Changed text-primary to text-navy -->
+              <h6 class="fw-bold text-navy mb-3"><i class="fas fa-chalkboard-teacher me-1"></i>Teacher Details</h6>
+              <div class="row">
+                <div class="mb-3 col-md-6">
+                  <label for="id_title" class="form-label">Title</label>
+                  {{ form.title }}
+                </div>
+                <div class="mb-3 col-md-6">
+                  <label for="id_department" class="form-label">Department</label>
+                  {{ form.department }}
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-3">
+              <!-- Changed btn-primary to btn-navy -->
+              <button type="submit" class="btn btn-navy btn-lg shadow-sm">Create Account</button>
+            </div>
+
+            <div class="mt-3 text-center">
+              <a href="{% url 'users:login' %}" class="text-muted small text-decoration-none">
+                <!-- Changed text-primary to text-navy -->
+                Already have an account? <span class="text-navy fw-bold">Login now</span>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // ---- Role -> student/teacher field toggle (dropdown version) ----
+    const roleSelect = document.getElementById("id_role");
+    const studentFields = document.getElementById("student-fields");
+    const teacherFields = document.getElementById("teacher-fields");
+
+    function toggleFields() {
+      studentFields.classList.add("d-none");
+      teacherFields.classList.add("d-none");
+      if (!roleSelect || !roleSelect.value) return;
+      if (roleSelect.value === "student") studentFields.classList.remove("d-none");
+      if (roleSelect.value === "teacher") teacherFields.classList.remove("d-none");
+    }
+
+    if (roleSelect) {
+      roleSelect.addEventListener("change", toggleFields);
+      toggleFields(); // handle pre-filled value on validation-error reload
+    }
+
+    // ---- Photo preview + remove ----
+    const photoInput = document.getElementById("id_photo");
+    const previewWrapper = document.getElementById("photo-preview-wrapper");
+    const previewImg = document.getElementById("photo-preview");
+    const clearBtn = document.getElementById("clear-photo-btn");
+
+    if (photoInput && previewWrapper) {
+      photoInput.addEventListener("change", function () {
+        const file = this.files && this.files[0];
+        
+        if (!file) {
+          previewWrapper.classList.add("d-none");
+          previewWrapper.classList.remove("d-flex");
+          previewImg.src = "#";
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImg.src = e.target.result;
+          previewWrapper.classList.remove("d-none");
+          previewWrapper.classList.add("d-flex");
+        };
+        reader.readAsDataURL(file);
+      });
+
+      clearBtn.addEventListener("click", function () {
+        photoInput.value = "";
+        previewImg.src = "#";
+        previewWrapper.classList.add("d-none");
+        previewWrapper.classList.remove("d-flex");
+      });
+    }
+  });
+</script>
+{% endblock %}

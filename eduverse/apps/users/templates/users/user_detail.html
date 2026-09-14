@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Profile ({{ profile_user.email }}){% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="col-lg-6 mx-auto">
+
+    <div class="profile-card">
+      <div class="profile-banner"></div>
+
+      {% if is_own_profile %}
+        <a href="{% url 'users:update' %}" class="btn course-btn-ghost btn-sm profile-edit-btn">
+          <i class="fas fa-pen me-1"></i>Edit
+        </a>
+      {% endif %}
+
+      <div class="profile-avatar-wrap">
+        {% if profile_user.photo %}
+          <img src="{{ profile_user.photo.url }}" alt="Profile photo" class="profile-avatar">
+        {% else %}
+          <div class="profile-avatar profile-avatar--placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="profile-body">
+        <div class="text-center mb-1">
+          <h4 class="profile-name mb-1">{{ profile_user.get_full_name }}</h4>
+          <span class="profile-role-pill profile-role-pill--{% if profile_user.is_student %}student{% else %}teacher{% endif %}">
+            {{ profile_user.get_role_display }}
+          </span>
+        </div>
+
+        <div class="profile-info mt-4">
+          <div class="profile-info-row">
+            <span class="profile-info-label">Email</span>
+            <span class="profile-info-value">{{ profile_user.email }}</span>
+          </div>
+
+          {% if profile_user.is_student %}
+            <div class="profile-info-row">
+              <span class="profile-info-label">Date of Birth</span>
+              <span class="profile-info-value">{{ profile_user.student_profile.date_of_birth|default:"—" }}</span>
+            </div>
+            <div class="profile-info-row profile-info-row--bio">
+              <span class="profile-info-label">Bio</span>
+              <span class="profile-info-value">{{ profile_user.student_profile.bio|default:"—" }}</span>
+            </div>
+          {% else %}
+            <div class="profile-info-row">
+              <span class="profile-info-label">Title</span>
+              <span class="profile-info-value">{{ profile_user.teacher_profile.get_title_display|default:"—" }}</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">Department</span>
+              <span class="profile-info-value">{{ profile_user.teacher_profile.department|default:"—" }}</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
+      <div class="course-section-title mb-0">
+        <span class="course-section-dot course-section-dot--sky"></span>
+        <h5 class="mb-0">Recent Posts</h5>
+      </div>
+      <a href="{% url 'feed:list' %}" class="dash-link">View all in Forum →</a>
+    </div>
+
+    {% for feed in profile_feeds %}
+      {% include "feed/_feed_item.html" with feed=feed comment_form=comment_form %}
+    {% empty %}
+      <div class="course-empty">
+        <i class="fas fa-pen-fancy course-empty-icon"></i>
+        <p class="mb-0">
+          {% if is_own_profile %}You haven't posted anything yet.{% else %}{{ profile_user.get_full_name }} hasn't posted anything yet.{% endif %}
+        </p>
+      </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endblock %}

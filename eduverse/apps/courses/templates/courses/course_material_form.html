@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Add Material{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="col-lg-8 mx-auto">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-navy text-white py-3">
+        <h5 class="mb-0">{% if material %}Edit Material{% else %}Add Material to {{ course.name }}{% endif %}</h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Title<span class="text-danger">*</span></label>
+            {{ form.title }}
+            {% if form.title.errors %}<div class="invalid-feedback d-block">{{ form.title.errors|striptags }}</div>{% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Content</label>
+            {{ form.content }}
+          </div>
+
+          <h6 class="fw-bold mb-3">Attachments</h6>
+          {{ formset.management_form }}
+
+          {% for attachment_form in formset %}
+            <div class="border rounded p-3 mb-2">
+              {{ attachment_form.id }}
+
+              {% if attachment_form.instance.pk and attachment_form.instance.file %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <a href="{{ attachment_form.instance.file.url }}" target="_blank" class="small">
+                    <i class="fas fa-paperclip me-1"></i>{{ attachment_form.instance.file.name|slice:"-40:" }}
+                  </a>
+                  <div class="form-check">
+                    {{ attachment_form.DELETE }}
+                    <label class="form-check-label text-danger small" for="{{ attachment_form.DELETE.id_for_label }}">
+                      Remove this attachment
+                    </label>
+                  </div>
+                </div>
+              {% else %}
+                {{ attachment_form.file }}
+                {% if attachment_form.file.errors %}
+                  <div class="invalid-feedback d-block">{{ attachment_form.file.errors|striptags }}</div>
+                {% endif %}
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-navy btn-lg">
+              <i class="fas fa-upload me-1"></i>{% if material %}Save Changes{% else %}Publish Material{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

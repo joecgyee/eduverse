@@ -1,0 +1,151 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Greeting hero -->
+<div class="dash-hero">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-4">
+      <div class="animate__animated animate__fadeInLeft">
+        <p class="dash-hero-eyebrow mb-1">
+          {% now "l, F j" %}
+        </p>
+        <h3 class="dash-hero-title mb-0">
+          Welcome back, {{ user.get_full_name }}.
+        </h3>
+      </div>
+
+      <div class="dash-stats animate__animated animate__fadeInRight">
+        <div class="dash-stat">
+          <span class="dash-stat-num">{{ courses|length|default:0 }}</span>
+          <span class="dash-stat-label">{% if request.user.is_teacher %}Teaching{% else %}Enrolled{% endif %}</span>
+        </div>
+        <div class="dash-stat">
+          <span class="dash-stat-num">{{ recent_chats|length|default:0 }}</span>
+          <span class="dash-stat-label">Active chats</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="my-5 container dash-body">
+  <div class="row g-4">
+
+    <!-- Left column: Courses -->
+    <div class="col-lg-7">
+      <div class="card dash-card dash-card--primary h-100 animate__animated animate__fadeInUp">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">{% if request.user.is_teacher %}My Courses{% else %}Enrolled Courses{% endif %}</h5>
+          <a href="{% url 'courses:list' %}" class="dash-link">View all →</a>
+        </div>
+        <div class="card-body p-0">
+          {% if courses %}
+            <div class="dash-course-list">
+              {% for course in courses %}
+                <a href="{% url 'courses:detail' course.pk %}" class="dash-course-item accent-{{ forloop.counter0|divisibleby:3|yesno:'a,b,c' }}">
+                  <div>
+                    <div class="fw-bold">{{ course.name }}</div>
+                    {% if course.code %}<div class="text-muted small">{{ course.code }}</div>{% endif %}
+                  </div>
+                  <i class="bi bi-chevron-right dash-chevron"></i>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="dash-empty">
+              <i class="bi bi-journal-bookmark dash-empty-icon"></i>
+              <p class="mb-2">
+                {% if request.user.is_teacher %}
+                  No courses yet — courses you create will show up here.
+                {% else %}
+                  No courses yet — courses you join will show up here.
+                {% endif %}
+              </p>
+              {% if request.user.is_teacher %}
+                <a href="{% url 'courses:list' %}" class="btn btn-navy btn-sm rounded-pill px-3">Create a course</a>
+              {% else %}
+                <a href="{% url 'courses:list' %}" class="btn btn-navy btn-sm rounded-pill px-3">Browse courses</a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-lg-5">
+
+      <!-- Search -->
+      <form method="get" action="{% url 'users:search' %}" class="dash-search mb-4 animate__animated animate__fadeInUp animate__faster">
+        <i class="bi bi-search dash-search-icon"></i>
+        <input type="text" name="q" class="dash-search-input" placeholder="Search for users by name or email...">
+        <button type="submit" class="dash-search-btn" aria-label="Search">
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </form>
+
+      <!-- Forum -->
+      <div class="mb-4 card dash-card dash-card--secondary animate__animated animate__fadeInUp" style="animation-delay:.08s">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Forum</h5>
+          <a href="{% url 'feed:list' %}" class="dash-link">View all →</a>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_posts %}
+            <div class="dash-feed">
+              {% for post in recent_posts %}
+                <a href="{% url 'feed:list' %}" class="dash-feed-item">
+                  <span class="dash-avatar accent-{{ forloop.counter0|divisibleby:3|yesno:'a,b,c' }}">
+                    {{ post.author.get_full_name|slice:":1"|upper }}
+                  </span>
+                  <span class="dash-feed-body">
+                    <span class="fw-bold small d-block">{{ post.author.get_full_name }}</span>
+                    <span class="text-truncate d-block">{{ post.content }}</span>
+                    <span class="text-muted small">{{ post.created_at|date:"M d, g:i A" }}</span>
+                  </span>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="dash-empty dash-empty--compact">
+              <p class="mb-0">No posts yet — be the first to start a discussion.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Chats -->
+      <div class="card dash-card dash-card--secondary animate__animated animate__fadeInUp" style="animation-delay:.16s">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Your Chats</h5>
+          <a href="{% url 'chat:list' %}" class="dash-link">View all →</a>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_chats %}
+            <div class="dash-feed">
+              {% for room in recent_chats %}
+                <a href="{% url 'chat:room_detail' room.pk %}" class="dash-feed-item"
+                   title="{{ room.course.code }} - {{ room.course.name }}">
+                  <span class="dash-chat-icon"><i class="bi bi-chat-dots-fill"></i></span>
+                  <span class="dash-feed-body">
+                    <span class="fw-bold small">{{ room.name|default:room.course.name }}</span>
+                  </span>
+                  {% if room.has_unread %}<span class="notif-dot dash-unread-dot"></span>{% endif %}
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="dash-empty dash-empty--compact">
+              <p class="mb-0">No chat rooms yet — conversations with your courses will appear here.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Start a Chat{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="col-lg-6 mx-auto">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-navy text-white py-3">
+        <h5 class="mb-0">Start a New Chat Room</h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Room Name</label>
+            {{ form.name }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Course<span class="text-danger">*</span></label>
+            {{ form.course }}
+            {% if form.course.errors %}<div class="invalid-feedback d-block">{{ form.course.errors|striptags }}</div>{% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Invite Members</label>
+            {{ form.members }}
+            <div class="form-text">{{ form.members.help_text }}</div>
+            <div class="form-text" id="members-loading" style="display:none;">Loading classmates...</div>
+            {% if form.members.errors %}<div class="invalid-feedback d-block">{{ form.members.errors|striptags }}</div>{% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-navy flex-fill">Create Room</button>
+            <a href="{% url 'chat:list' %}" class="btn btn-outline-secondary flex-fill">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const courseSelect = document.getElementById("id_course");
+    const membersSelect = document.getElementById("id_members");
+    const loadingLabel = document.getElementById("members-loading");
+
+    function loadMembers(courseId) {
+      membersSelect.innerHTML = "";
+      if (!courseId) return;
+
+      loadingLabel.style.display = "block";
+
+      fetch(`/chat/ajax/course/${courseId}/members/`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          data.members.forEach((member) => {
+            const option = document.createElement("option");
+            option.value = member.id;
+            option.textContent = member.name;
+            membersSelect.appendChild(option);
+          });
+        })
+        .finally(() => {
+          loadingLabel.style.display = "none";
+        });
+    }
+
+    courseSelect.addEventListener("change", function () {
+      loadMembers(this.value);
+    });
+
+    // On initial page load, if a course is already selected
+    // (e.g. re-rendered after a validation error), load its members too.
+    if (courseSelect.value) {
+      loadMembers(courseSelect.value);
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Courses{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h3 class="course-page-title mb-0 animate__animated animate__slideInRight">Courses</h3>
+    {% if request.user.is_teacher %}
+      <a href="{% url 'courses:create' %}" class="btn btn-navy rounded-pill px-3">
+        <i class="fas fa-plus me-1"></i>New Course
+      </a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="course-search mb-5">
+    <i class="fas fa-search course-search-icon"></i>
+    <input type="text" name="q" value="{{ query }}" class="course-search-input"
+           placeholder="Search courses by course name, code, or teacher...">
+    {% if query %}
+      <a href="{% url 'courses:list' %}" class="course-search-clear" aria-label="Clear search">
+        <i class="fas fa-times"></i>
+      </a>
+    {% endif %}
+    <button type="submit" class="course-search-btn" aria-label="Search">
+      <i class="bi bi-arrow-right"></i>
+    </button>
+  </form>
+
+  <!-- My Courses -->
+  <div class="course-section-title mb-3">
+    <span class="course-section-dot course-section-dot--navy"></span>
+    <h5 class="mb-0">My Courses</h5>
+  </div>
+
+  {% if my_courses_page %}
+    <div class="row g-4 mb-3">
+      {% for course in my_courses_page %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card course-card course-card--mine h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title mb-0">{{ course.name }}</h5>
+                {% if request.user.is_teacher %}
+                  <span class="course-badge course-badge--{{ course.status }}">
+                    {{ course.get_status_display }}
+                  </span>
+                {% endif %}
+              </div>
+              {% if course.code %}<p class="text-muted small mb-2">{{ course.code }}</p>{% endif %}
+              <p class="card-text text-truncate">{{ course.description|default:"No description provided." }}</p>
+              {% if request.user.is_student %}
+                <p class="small text-muted mb-0">
+                  <i class="fas fa-chalkboard-teacher me-1"></i>{% if course.teacher.teacher_profile.title %}{{ course.teacher.teacher_profile.title }} {% endif %}{{ course.teacher.get_full_name }}
+                </p>
+              {% endif %}
+            </div>
+            <div class="card-footer bg-white border-0 pb-3">
+              <a href="{% url 'courses:detail' course.pk %}" class="btn course-btn-view w-100">View Course</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if my_courses_page.has_other_pages %}
+      <nav class="mb-5">
+        <ul class="pagination course-pagination justify-content-center">
+          {% if my_courses_page.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?mine_page={{ my_courses_page.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Previous</a>
+            </li>
+          {% endif %}
+          {% for num in my_courses_page.paginator.page_range %}
+            <li class="page-item {% if num == my_courses_page.number %}active{% endif %}">
+              <a class="page-link" href="?mine_page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+            </li>
+          {% endfor %}
+          {% if my_courses_page.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?mine_page={{ my_courses_page.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="course-empty mb-5">
+      <i class="bi bi-journal-bookmark course-empty-icon"></i>
+      <p class="mb-0">
+        {% if query %}
+          No matching courses.
+        {% elif request.user.is_teacher %}
+          You haven't created any courses yet.
+        {% else %}
+          You're not enrolled in any courses yet.
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
+  <div class="course-divider"></div>
+
+  <!-- Available Courses -->
+  <div class="course-section-title mb-3">
+    <span class="course-section-dot course-section-dot--sky"></span>
+    <h5 class="mb-0">Available Courses</h5>
+  </div>
+
+  {% if published_page %}
+    <div class="row g-4">
+      {% for course in published_page %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card course-card course-card--open h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-2">{{ course.name }}</h5>
+              {% if course.code %}<p class="text-muted small mb-2">{{ course.code }}</p>{% endif %}
+              <p class="card-text text-truncate">{{ course.description|default:"No description provided." }}</p>
+              <p class="small text-muted mb-0">
+                <i class="fas fa-chalkboard-teacher me-1"></i>{% if course.teacher.teacher_profile.title %}{{ course.teacher.teacher_profile.title }} {% endif %}{{ course.teacher.get_full_name }}
+              </p>
+            </div>
+            <div class="card-footer bg-white border-0 pb-3">
+              <a href="{% url 'courses:detail' course.pk %}" class="btn course-btn-view w-100">View Course</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if published_page.has_other_pages %}
+      <nav class="mt-4">
+        <ul class="pagination course-pagination justify-content-center">
+          {% if published_page.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ published_page.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Previous</a>
+            </li>
+          {% endif %}
+          {% for num in published_page.paginator.page_range %}
+            <li class="page-item {% if num == published_page.number %}active{% endif %}">
+              <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+            </li>
+          {% endfor %}
+          {% if published_page.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ published_page.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="course-empty">
+      <i class="fas fa-book course-empty-icon"></i>
+      <p class="mb-0">{% if query %}No published courses found matching "{{ query }}".{% else %}No published courses yet.{% endif %}</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

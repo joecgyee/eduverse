@@ -1,0 +1,282 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Boot-style intro -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-ring intro-ring--1"></div>
+  <div class="intro-ring intro-ring--2"></div>
+
+  <div class="intro-logo-wrap">
+    <img src="{% static 'images/eduverse_logo/eduverse-high-resolution-logo-transparent.png' %}"
+         alt="Eduverse" class="intro-logo">
+  </div>
+
+  <button type="button" class="intro-skip" id="introSkip">Skip</button>
+</div>
+
+<!-- Hero -->
+<section class="hero-section" id="heroSection">
+  <div class="container">
+    <div class="hero-inner text-center">
+      <img src="{% static 'images/eduverse_logo/eduverse-high-resolution-logo-transparent.png' %}"
+           alt="Eduverse logo" class="hero-logo mb-4">
+
+      <h1 class="hero-title">Your classroom, wherever you are.</h1>
+      <p class="hero-subtitle">
+        Track your courses, message your mentors, and pick up right where you left off.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{% url 'users:register' %}" class="btn hero-btn-solid btn-lg rounded-pill px-4 shadow-sm">
+          Create an account
+        </a>
+        <a href="{% url 'users:login' %}" class="btn hero-btn-ghost btn-lg rounded-pill px-4">
+          Sign in
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---------- Intro overlay ---------- */
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(
+            circle at center,
+            #11468F 0%,   /* lighter blue */
+            #0B1E63 45%,  /* mid tone */
+            #041562 70%,  /* deeper blue */
+            #020a33 100%  /* darkest */
+        );
+    transition: opacity 0.7s ease;
+  }
+
+  .intro-overlay--hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  body.intro-lock {
+    overflow: hidden;
+  }
+
+  .intro-logo-wrap {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .intro-logo {
+    height: 90px;
+    opacity: 0;
+    filter: blur(10px) drop-shadow(0 0 25px rgba(255, 255, 255, 0.35));
+    transform: scale(0.4);
+    animation: introLogoReveal 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes introLogoReveal {
+    0%   { opacity: 0;   transform: scale(0.4); filter: blur(10px) drop-shadow(0 0 25px rgba(255,255,255,0.35)); }
+    55%  { opacity: 1;   transform: scale(1.08); filter: blur(0) drop-shadow(0 0 25px rgba(255,255,255,0.35)); }
+    75%  { transform: scale(0.97); }
+    100% { opacity: 1;   transform: scale(1); filter: blur(0) drop-shadow(0 0 12px rgba(255,255,255,0.2)); }
+  }
+
+  /* light sweep across the logo, PS5-flare style */
+  .intro-logo-wrap::after {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -160%;
+    width: 55%;
+    height: 220%;
+    background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    transform: rotate(15deg);
+    animation: introSweep 1.4s ease forwards;
+    animation-delay: 1.05s;
+  }
+
+  @keyframes introSweep {
+    0%   { left: -160%; }
+    100% { left: 160%; }
+  }
+
+  /* expanding rings behind the logo */
+  .intro-ring {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    opacity: 0;
+    animation: introRing 2s ease-out forwards;
+  }
+
+  .intro-ring--1 { animation-delay: 0.15s; }
+  .intro-ring--2 { animation-delay: 0.55s; }
+
+  @keyframes introRing {
+    0%   { transform: scale(0.5); opacity: 0.7; }
+    80%  { opacity: 0; }
+    100% { transform: scale(2.1); opacity: 0; }
+  }
+
+  .intro-skip {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #EEEEEE;
+    font-size: 0.85rem;
+    padding: 0.4rem 1.1rem;
+    border-radius: 999px;
+    opacity: 0;
+    animation: introSkipFade 0.6s ease forwards;
+    animation-delay: 0.6s;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .intro-skip:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.7);
+  }
+
+  @keyframes introSkipFade {
+    to { opacity: 1; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero-section {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(180deg, #041562 0%, #0B1E63 55%, #f8f9fa 100%);
+    /* background: linear-gradient(180deg, #0B1E63 0%, #f8f9fa 100%); */
+    color: #EEEEEE;
+    padding: 4rem 0;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+
+  .hero-section--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-logo {
+    height: 56px;
+  }
+
+  .hero-title {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4vw, 2.9rem);
+    max-width: 640px;
+    margin: 0 auto 1rem;
+  }
+
+  .hero-subtitle {
+    max-width: 480px;
+    margin: 0 auto 2rem;
+    color: rgba(238, 238, 238, 0.85);
+    font-size: 1.05rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .hero-btn-solid {
+    background-color: #2196F3;
+    color: #fff;
+    font-weight: 400;
+    border-radius: 999px;
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+    box-shadow: 0 8px 22px rgba(218, 18, 18, 0.28);
+  }
+
+  .hero-btn-solid:hover {
+    background-color: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+
+  .hero-btn-ghost {
+    background-color: transparent;
+    border: 1.5px solid rgba(238, 238, 238, 0.55);
+    color: #EEEEEE;
+    font-weight: 400;
+    border-radius: 999px;
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+  }
+
+  .hero-btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: #EEEEEE;
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro-overlay,
+    .intro-logo,
+    .intro-logo-wrap::after,
+    .intro-ring,
+    .intro-skip,
+    .hero-section {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var overlay = document.getElementById('introOverlay');
+    var skipBtn = document.getElementById('introSkip');
+    var hero = document.getElementById('heroSection');
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function endIntro() {
+      overlay.classList.add('intro-overlay--hide');
+      hero.classList.add('hero-section--visible');
+      document.body.classList.remove('intro-lock');
+      setTimeout(function () {
+        if (overlay && overlay.parentNode) {
+          overlay.parentNode.removeChild(overlay);
+        }
+      }, 700);
+    }
+
+    if (prefersReduced) {
+      if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+      hero.classList.add('hero-section--visible');
+      return;
+    }
+
+    document.body.classList.add('intro-lock');
+    var introTimer = setTimeout(endIntro, 2500);
+
+    skipBtn.addEventListener('click', function () {
+      clearTimeout(introTimer);
+      endIntro();
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+/* ---------- Forum composer ---------- */
+.feed-composer {
+    display: flex;
+    gap: 0.85rem;
+    background-color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(4, 21, 98, 0.08);
+    padding: 1.25rem;
+}
+
+.feed-composer-field textarea,
+.feed-composer-field input[type="text"] {
+    width: 100%;
+    border: 1.5px solid rgba(4, 21, 98, 0.12);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    resize: none;
+    min-height: 80px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feed-composer-field textarea:focus,
+.feed-composer-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(4, 21, 98, 0.08);
+}
+
+/* Placeholder hook for post cards once _feed_item.html is shared */
+.feed-item {
+    display: flex;
+    gap: 0.85rem;
+    background-color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(4, 21, 98, 0.08);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1rem;
+}

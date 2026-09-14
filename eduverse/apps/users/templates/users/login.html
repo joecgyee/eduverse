@@ -1,0 +1,64 @@
+{% extends "core/base.html" %}
+
+{% block title %}Eduverse - Login{% endblock %}
+
+{% block content %}
+<div class="min-vh-center">
+  <div class="container d-flex align-items-center justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-navy text-white py-3">
+          <h4 class="mb-0 text-center"><i class="fas fa-sign-in-alt me-2"></i>Login to Eduverse</h4>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger shadow-sm">
+                {% for error in form.non_field_errors %}
+                  <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label for="id_username" class="form-label fw-bold">
+                <i class="fas fa-envelope me-1"></i> Email<span class="text-danger">*</span>
+              </label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                <div class="invalid-feedback d-block">{{ form.username.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label for="id_password" class="form-label fw-bold">
+                <i class="fas fa-lock me-1"></i> Password<span class="text-danger">*</span>
+              </label>
+              {{ form.password }}
+              {% if form.password.errors %}
+                <div class="invalid-feedback d-block">{{ form.password.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="d-grid gap-2">
+              <!-- Changed btn-primary to btn-navy -->
+              <button type="submit" class="btn btn-navy btn-lg shadow-sm">Sign In</button>
+            </div>
+
+            <div class="mt-4 text-center">
+              <p class="text-muted small">
+                Don't have an account?
+                <!-- Changed text-primary to text-navy -->
+                <a href="{% url 'users:register' %}" class="text-navy fw-bold text-decoration-none">Register here</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

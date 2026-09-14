@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Search Users{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h4 class="mb-1">Search Results</h4>
+  <p class="text-muted mb-4">{{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"</p>
+
+  {% if results %}
+    <div class="row g-3">
+      {% for u in results %}
+        <div class="col-md-6 col-lg-4">
+          <a href="{% url 'users:detail_by_id' u.pk %}" class="card shadow-sm border-0 text-decoration-none text-dark h-100">
+            <div class="card-body d-flex align-items-center">
+              {% if u.photo %}
+                <img src="{{ u.photo.url }}" alt="" class="rounded-circle me-3" style="width:48px; height:48px; object-fit:cover;">
+              {% else %}
+                <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center me-3"
+                     style="width:48px; height:48px;">
+                  <i class="fas fa-user text-secondary"></i>
+                </div>
+              {% endif %}
+              <div>
+                <div class="fw-bold">{{ u.get_full_name }}</div>
+                <div class="text-muted small">{{ u.email }}</div>
+                <span class="badge bg-light text-dark border">{{ u.get_role_display }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">{% if query %}No users found matching "{{ query }}".{% else %}Enter a search term above.{% endif %}</p>
+  {% endif %}
+</div>
+{% endblock %}

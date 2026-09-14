@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - Edit Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="col-lg-6 mx-auto">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-navy text-white py-3">
+        <h5 class="mb-0">Edit Profile</h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          {% if user_form.non_field_errors %}
+            <div class="alert alert-danger">{{ user_form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">First Name</label>
+            {{ user_form.first_name }}
+            {% if user_form.first_name.errors %}
+              <div class="invalid-feedback d-block">{{ user_form.first_name.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Last Name</label>
+            {{ user_form.last_name }}
+            {% if user_form.last_name.errors %}
+              <div class="invalid-feedback d-block">{{ user_form.last_name.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            {{ user_form.email }}
+            {% if user_form.email.errors %}
+              <div class="invalid-feedback d-block">{{ user_form.email.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Profile Photo</label>
+            {{ user_form.photo }}
+            {% if user_form.photo.errors %}
+              <div class="invalid-feedback d-block">{{ user_form.photo.errors|striptags }}</div>
+            {% endif %}
+
+            <div class="mt-2 d-flex align-items-center gap-3 {% if not profile_user.photo %}d-none{% endif %}" id="photo-preview-wrapper">
+              <img id="photo-preview"
+                  src="{% if profile_user.photo %}{{ profile_user.photo.url }}{% else %}#{% endif %}"
+                  alt="Photo preview" class="rounded"
+                  style="width:80px; height:80px; object-fit:cover; border:1px solid #dee2e6;">
+              <button type="button" id="clear-photo-btn" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-times me-1"></i>Remove photo
+              </button>
+            </div>
+          </div>
+
+          <hr>
+
+          {% if profile_form.instance.date_of_birth is not None or 'date_of_birth' in profile_form.fields %}
+            <h6 class="fw-bold text-navy mb-3"><i class="fas fa-graduation-cap me-1"></i>Student Details</h6>
+            <div class="mb-3">
+              <label class="form-label">Date of Birth</label>
+              {{ profile_form.date_of_birth }}
+              {% if profile_form.date_of_birth.errors %}
+                <div class="invalid-feedback d-block">{{ profile_form.date_of_birth.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Bio</label>
+              {{ profile_form.bio }}
+            </div>
+          {% else %}
+            <h6 class="fw-bold text-navy mb-3"><i class="fas fa-chalkboard-teacher me-1"></i>Teacher Details</h6>
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              {{ profile_form.title }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Department</label>
+              {{ profile_form.department }}
+            </div>
+          {% endif %}
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-navy flex-fill">Save Changes</button>
+            <a href="{% url 'users:detail' %}" class="btn btn-outline-secondary flex-fill">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // ---- Photo preview + remove ----
+    const photoInput = document.getElementById("id_photo");
+    const previewWrapper = document.getElementById("photo-preview-wrapper");
+    const previewImg = document.getElementById("photo-preview");
+    const clearBtn = document.getElementById("clear-photo-btn");
+
+    if (photoInput && previewWrapper) {
+      photoInput.addEventListener("change", function () {
+        const file = this.files && this.files[0];
+
+        if (!file) {
+          previewWrapper.classList.add("d-none");
+          previewWrapper.classList.remove("d-flex");
+          previewImg.src = "#";
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImg.src = e.target.result;
+          previewWrapper.classList.remove("d-none");
+          previewWrapper.classList.add("d-flex");
+        };
+        reader.readAsDataURL(file);
+      });
+
+      clearBtn.addEventListener("click", function () {
+        photoInput.value = "";
+        previewImg.src = "#";
+        previewWrapper.classList.add("d-none");
+        previewWrapper.classList.remove("d-flex");
+      });
+    }
+  });
+</script>
+{% endblock %}

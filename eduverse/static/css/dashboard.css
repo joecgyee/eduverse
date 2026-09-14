@@ -1,0 +1,274 @@
+/* ---------- Dashboard: tokens ---------- */
+
+h3.dash-hero-title,
+.dash-card .card-header h5 {
+    font-family: 'Sora', system-ui, sans-serif;
+}
+
+/* ---------- Hero band ---------- */
+.dash-hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+    color: #EEEEEE;
+    padding: 2.5rem 0 3.5rem;
+}
+
+.dash-hero-eyebrow {
+    font-size: 0.8rem;
+    color: rgba(238, 238, 238, 0.65);
+    letter-spacing: 0.02em;
+}
+
+.dash-hero-title {
+    font-family: 'Sora', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+}
+
+.dash-stats {
+    display: flex;
+    gap: 1.75rem;
+}
+
+.dash-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dash-stat-num {
+    font-family: 'Sora', system-ui, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.dash-stat-label {
+    font-size: 0.78rem;
+    color: rgba(238, 238, 238, 0.7);
+    margin-top: 0.2rem;
+}
+
+/* pull the card row up over the hero for a bit of depth */
+.dash-body {
+    margin-top: -1.75rem;
+}
+
+/* ---------- Cards ---------- */
+.dash-card {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.dash-card--primary {
+    box-shadow: 0 12px 30px rgba(4, 21, 98, 0.14);
+    border-top: 3px solid var(--navy);
+}
+
+.dash-card--secondary {
+    box-shadow: 0 6px 18px rgba(4, 21, 98, 0.08);
+    background-color: #fbfbfe;
+}
+
+.dash-card .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(4, 21, 98, 0.08);
+    padding: 1rem 1.25rem;
+}
+
+.dash-link {
+    font-size: 0.85rem;
+    color: var(--navy);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.dash-link:hover {
+    color: var(--red);
+}
+
+/* ---------- Course list ---------- */
+.dash-course-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-course-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 1.25rem;
+    border-left: 4px solid transparent;
+    border-bottom: 1px solid rgba(4, 21, 98, 0.06);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.dash-course-item:last-child {
+    border-bottom: none;
+}
+
+.dash-course-item:hover {
+    background-color: rgba(4, 21, 98, 0.03);
+    text-decoration: none;
+    color: inherit;
+}
+
+.dash-course-item.accent-a { border-left-color: var(--navy); }
+.dash-course-item.accent-b { border-left-color: var(--sky); }
+.dash-course-item.accent-c { border-left-color: var(--amber); }
+
+.dash-chevron {
+    color: rgba(4, 21, 98, 0.3);
+}
+
+/* ---------- Search bar ---------- */
+.dash-search {
+    display: flex;
+    align-items: center;
+    background-color: var(--blue);
+    border-radius: 999px;
+    padding: 0.35rem 0.35rem 0.35rem 1rem;
+    box-shadow: 0 6px 18px rgba(4, 21, 98, 0.18);
+}
+
+.dash-search-icon {
+    color: rgba(238, 238, 238, 0.6);
+    margin-right: 0.6rem;
+}
+
+.dash-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #EEEEEE;
+    padding: 0.55rem 0;
+    font-size: 0.95rem;
+}
+
+.dash-search-input::placeholder {
+    color: rgba(238, 238, 238, 0.55);
+}
+
+.dash-search-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.dash-search-btn {
+    background-color: var(--red);
+    color: #fff;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
+}
+
+.dash-search-btn:hover {
+    background-color: #b30e0e;
+}
+
+/* ---------- Feed lists (forum + chats) ---------- */
+.dash-feed {
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-feed-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid rgba(4, 21, 98, 0.06);
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+}
+
+.dash-feed-item:last-child {
+    border-bottom: none;
+}
+
+.dash-feed-item:hover {
+    background-color: rgba(4, 21, 98, 0.03);
+    color: inherit;
+    text-decoration: none;
+}
+
+.dash-feed-body {
+    min-width: 0;
+}
+
+.dash-feed-body .text-truncate {
+    max-width: 100%;
+}
+
+.dash-avatar {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.dash-avatar.accent-a { background-color: var(--navy); }
+.dash-avatar.accent-b { background-color: var(--sky); }
+.dash-avatar.accent-c { background-color: var(--amber); color: var(--navy); }
+
+.dash-chat-icon {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: rgba(4, 21, 98, 0.08);
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.dash-unread-dot {
+    position: static;
+    margin-left: auto;
+    border-color: #fbfbfe;
+}
+
+/* ---------- Empty states ---------- */
+.dash-empty {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    color: #6c757d;
+}
+
+.dash-empty--compact {
+    padding: 1.5rem 1.25rem;
+    text-align: left;
+}
+
+.dash-empty-icon {
+    font-size: 1.8rem;
+    color: rgba(4, 21, 98, 0.25);
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+@media (max-width: 991.98px) {
+    .dash-stats {
+        gap: 1.25rem;
+    }
+    .dash-body {
+        margin-top: -1.25rem;
+    }
+}

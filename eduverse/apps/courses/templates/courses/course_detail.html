@@ -1,0 +1,181 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eduverse - {{ course.name }}{% endblock %}
+
+{% block content %}
+
+<!-- Course header -->
+<div class="course-detail-hero">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <p class="course-detail-eyebrow mb-1">{{ course.code|default:"Course" }}</p>
+        <h3 class="course-detail-title mb-2">{{ course.name }}</h3>
+        <p class="course-detail-meta mb-0">
+          <i class="fas fa-chalkboard-teacher me-1"></i>
+          {% if course.teacher.teacher_profile.title %}{{ course.teacher.teacher_profile.title }} {% endif %}{{ course.teacher.get_full_name }}
+          {% if course.start_date %}<span class="mx-2">•</span>Starts {{ course.start_date }}{% endif %}
+          {% if course.end_date %}<span class="mx-2">•</span>Ends {{ course.end_date }}{% endif %}
+        </p>
+      </div>
+
+      {% if is_owner %}
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{% url 'courses:update' course.pk %}" class="btn course-btn-ghost btn-sm">
+            <i class="fas fa-pen me-1"></i>Edit
+          </a>
+          <a href="{% url 'courses:students' course.pk %}" class="btn course-btn-ghost btn-sm">
+            <i class="fas fa-users me-1"></i>Students
+          </a>
+          <a href="{% url 'courses:material_create' course.pk %}" class="btn course-btn-solid btn-sm">
+            <i class="fas fa-upload me-1"></i>Add Material
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="container course-detail-body">
+
+  <!-- Description + status row -->
+  <div class="course-detail-panel mb-4">
+    <p class="mb-0">{{ course.description|default:"No description provided." }}</p>
+  </div>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      {% if request.user.is_student and not is_owner %}
+        {% if is_enrolled %}
+          <span class="course-status-pill course-status-pill--enrolled">
+            <i class="fas fa-check me-1"></i>Enrolled
+          </span>
+        {% else %}
+          <form method="post" action="{% url 'courses:enrol' course.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn course-btn-solid">
+              <i class="fas fa-plus me-1"></i>Enrol in this Course
+            </button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="d-flex gap-2">
+      {% if request.user.is_student and is_enrolled and not is_owner %}
+        <a href="{% url 'courses:classmates' course.pk %}" class="btn course-btn-ghost btn-sm">
+          <i class="fas fa-users me-1"></i>Classmates
+        </a>
+      {% endif %}
+      {% if chat_room and is_owner or is_enrolled %}
+        <a href="{% url 'chat:room_detail' chat_room.pk %}" class="btn course-btn-ghost btn-sm">
+          <i class="fas fa-comments me-1"></i>Go to Chat Room
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Materials -->
+  <div class="course-section-title mb-3">
+    <span class="course-section-dot course-section-dot--navy"></span>
+    <h5 class="mb-0">Course Materials</h5>
+  </div>
+
+  {% if materials %}
+    <div class="course-detail-panel p-0 mb-5">
+      {% for material in materials %}
+        <div class="material-item">
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div class="min-w-0">
+              <h6 class="mb-1">{{ material.title }}</h6>
+              <p class="mb-2 small text-secondary">{{ material.content }}</p>
+              {% if material.attachments.all %}
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  {% for attachment in material.attachments.all %}
+                    <a href="{{ attachment.file.url }}" target="_blank" class="material-attachment">
+                      <i class="fas fa-paperclip me-1"></i>{{ attachment.file.name|slice:"-30:" }}
+                    </a>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <p class="text-muted small mb-0">Uploaded {{ material.uploaded_at|date:"M d, Y" }}</p>
+            </div>
+            {% if is_owner %}
+              <div class="d-flex gap-2 flex-shrink-0">
+                <a href="{% url 'courses:material_update' course.pk material.pk %}" class="material-icon-btn">
+                  <i class="fas fa-pen"></i>
+                </a>
+                <form method="post" action="{% url 'courses:material_delete' course.pk material.pk %}"
+                      onsubmit="return confirm('Delete \'{{ material.title }}\'? This cannot be undone.');">
+                  {% csrf_token %}
+                  <button type="submit" class="material-icon-btn material-icon-btn--danger">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% elif request.user.is_student %}
+    <div class="course-empty mb-5">
+      <i class="fas fa-lock course-empty-icon"></i>
+      <p class="mb-0">Enrol in this course to access materials.</p>
+    </div>
+  {% else %}
+    <div class="course-empty mb-5">
+      <i class="fas fa-folder-open course-empty-icon"></i>
+      <p class="mb-0">No materials uploaded yet.</p>
+    </div>
+  {% endif %}
+
+  <!-- Feedback -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="course-section-title mb-0">
+      <span class="course-section-dot course-section-dot--sky"></span>
+      <h5 class="mb-0">Feedback</h5>
+    </div>
+    {% if request.user.is_student and not is_owner and is_enrolled %}
+      <a href="{% url 'courses:feedback_create' course.pk %}" class="btn course-btn-ghost btn-sm">
+        <i class="fas fa-star me-1"></i>Leave Feedback
+      </a>
+    {% endif %}
+  </div>
+
+  {% if feedback %}
+    <div class="feedback-panel mb-5">
+      {% for fb in feedback %}
+        <div class="feedback-item">
+          <span class="dash-avatar accent-{{ forloop.counter0|divisibleby:3|yesno:'a,b,c' }}">
+            {{ fb.student.get_full_name|slice:":1"|upper }}
+          </span>
+          <div class="min-w-0">
+            <div class="d-flex justify-content-between align-items-center gap-2">
+              <strong class="small">{{ fb.student.get_full_name }}</strong>
+              {% if fb.rating %}
+                <span class="feedback-stars">
+                  {% for i in "12345" %}{% if forloop.counter <= fb.rating %}★{% else %}☆{% endif %}{% endfor %}
+                </span>
+              {% endif %}
+            </div>
+            <p class="mb-0 small text-secondary">{{ fb.comment }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="course-empty mb-5">
+      <i class="fas fa-comment-slash course-empty-icon"></i>
+      <p class="mb-0">No feedback yet.</p>
+    </div>
+  {% endif %}
+
+  <div class="mb-4 d-flex justify-content-end pt-2 border-top">
+    <a href="{% url 'courses:list' %}" class="btn course-btn-ghost mt-3">
+      <i class="fas fa-arrow-left me-1"></i>Back to Courses
+    </a>
+  </div>
+
+</div>
+{% endblock %}
