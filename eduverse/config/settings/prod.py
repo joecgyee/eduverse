@@ -1,10 +1,10 @@
-# config/settings/prod.py
-
 import os
 import dj_database_url
 from .base import *
 
 DEBUG = False
+
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 ALLOWED_HOSTS = [os.getenv("RENDER_EXTERNAL_HOSTNAME", "")]
 CSRF_TRUSTED_ORIGINS = [f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME', '')}"]
@@ -40,8 +40,11 @@ CHANNEL_LAYERS = {
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
+# Tell Django to trust the proxy headers from Render
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Keep SSL redirect enabled
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
