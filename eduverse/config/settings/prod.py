@@ -18,12 +18,21 @@ DATABASES = {
 }
 
 # Redis-backed channel layer — required once you're not on a single dev process.
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [os.getenv("REDIS_URL")],
+#         },
+#     }
+# }
+
+# We still use InMemoryChannelLayer, works fine as long as Render only runs one 
+# instance of your web service (the default on a free/starter plan), 
+# since there's no cross-process broadcasting needed in that case.
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.getenv("REDIS_URL")],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     }
 }
 
