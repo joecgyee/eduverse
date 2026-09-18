@@ -2,10 +2,12 @@
 
 Eduverse is a full-stack eLearning web application built with Django. It supports two
 distinct user roles — **students** and **teachers** — with role-based permissions, course
-management, a social feed, real-time chat over WebSockets, and a documented REST API.
-
-## Demo Video
-Watch the demonstration [here](https://youtu.be/mbiBiYKImi8).
+management, a social feed, real-time chat over WebSockets, and a documented REST API.  
+  
+**Live Deployment**  
+View the app on [Render](https://eduverse-b5qw.onrender.com).  
+**Demo Video**  
+Watch the demonstration [here](https://youtu.be/mbiBiYKImi8).  
 
 ---
 
